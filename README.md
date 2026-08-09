@@ -106,9 +106,11 @@ For each input, the [CLS] token vector (a 768-dimensional sentence representatio
 These embeddings are stacked into a NumPy array (bert_features) that serves as input features for a 10-fold cross-validated logistic regression (LogisticRegressionCV) trained to predict the target labels y. 
 The entire BERT model is used in inference mode (no fine-tuning), providing contextualized text representations for downstream classification.
 
-`df2Neo4j.ipynb` -
-Create a Neo4j graph object from comments using LangChain and LlaMA.
-Then, create the two subgraphs of AIVI and HI.
+`kg_construction.ipynb` - Builds the heterogeneous knowledge graph from user
+comments. Each comment is processed with LangChain's LLMGraphTransformer using
+OpenAI gpt-4o-mini to extract head-relation-tail triples, which are written to
+a Neo4j database. Also contains the Cypher queries used to export the AIVI and
+HI subgraph edge lists analyzed in `graph_analysis.R`.
 
 `roberta-base-go_emotions.py` -
 Fine-grained emotion analysis. Capture affective nuances beyond polarity-based sentiment.
