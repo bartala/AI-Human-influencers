@@ -158,7 +158,7 @@ polarity magnitudes while leaving the sign-based categorical classification
 stable. The regenerated categorical counts match the published counts for
 156,917 of 156,918 comments.
 
-Output: `Data/polarity_scores.csv` (continuous polarity, sign category, and
+Output: `Data/polarity_scores.csv.zip` (continuous polarity, sign category, and
 term-detection flag per comment, plus commenter id, influencer id, influencer
 type, and comment length -- no raw comment text).
 
