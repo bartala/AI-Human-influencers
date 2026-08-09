@@ -85,7 +85,7 @@ Visualizes these differences with ggplot2 boxplots and overlays mean/error bars.
 Logistic Regression with caret:
 Trains a logistic regression model on selected features (likes_count, popularity, sentiment).
 Evaluates performance via confusion matrix, F1 score, and ROC/AUC.
-Exploratory Model with BERT and TF-IDF:
+BERT-LR baseline:
 Includes textEmbed for BERT embeddings and tm for TF-IDF vectorization.
 Trains logistic regression using comment text.
 Makes predictions and evaluates performance.
