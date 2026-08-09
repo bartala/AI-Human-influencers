@@ -165,7 +165,7 @@ library(tidyr)  # for data manipulation
 
 # Example data: replace this with your actual data
 
-setwd("C:\\seminar")
+setwd("C:\\your_path")
 #text.df<-read.csv('data1.csv', stringsAsFactors=FALSE)
 data <- read.csv("sentiment_analysis_results1.csv",  stringsAsFactors=FALSE)
 
