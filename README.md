@@ -56,9 +56,9 @@ Analysis of Estimated Earnings per Post
 
 
 `Text_to_Vector.py` -
-Loads a JSON file (output_Final.json) containing user comments (likely scraped from Instagram).
+Loads a JSON file (output_Final.json) containing user comments collected via the Meta Content Library API.
 Starts processing at a given index (start_index = 150000) in case of a crash or to resume processing.
-Uses OpenAI’s `text-embedding-3-large` model to generate embeddings from user comment text (posts.comments.text).
+Uses OpenAI’s `text-embedding-3-small` model to generate embeddings from user comment text (posts.comments.text).
 Stores the result in a new column: embedded.posts.comments.text.
 Implements retrying failed embedding requests with backoff.
 Periodically saves output to JSON files named by index (OutPutUntilXXXX.json), plus a final export.
@@ -114,7 +114,7 @@ HI subgraph edge lists analyzed in `graph_analysis.R`.
 
 `roberta-base-go_emotions.py` -
 Fine-grained emotion analysis. Capture affective nuances beyond polarity-based sentiment.
-This code runs a transformer-based multi-label emotion recognition model (SamLowe/roberta-base-go_emotions) fine-tuned on the GoEmotions dataset, which distinguishes 28 discrete emotion categories and a neutral state. The model produces probability scores for each emotion, allowing multiple emotions to co-occur within a single comment.
+This code runs a transformer-based multi-label emotion recognition model (SamLowe/roberta-base-go_emotions) fine-tuned on the GoEmotions dataset, which distinguishes 27 discrete emotions plus neutral (28 categories total). The model produces probability scores for each emotion, allowing multiple emotions to co-occur within a single comment.
 
 `sampling_bot_or_not.py` -
 Randomly sample comments directed at AIVIS and HIs.
@@ -184,7 +184,7 @@ Please send any questions you might have about the code and/or the algorithm to 
 If you find this paper useful for your research, please consider citing us:
 ```
 @article{jagodnikAIVI,
-  title={Emotional and Behavioral Asymmetries in User Responses to Virtual versus Human Influencers},
+  title={Emotional and behavioral asymmetries in user responses to virtual versus human influencers},
   author={Jagodnik, Kathleen M and Bartal, Alon},
   journal={Scientific Reports},
   volume={},

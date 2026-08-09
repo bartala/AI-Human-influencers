@@ -1,4 +1,3 @@
-#Import from C:\seminar
 #create df
 import pandas as pd
 import json
@@ -7,7 +6,6 @@ from dotenv import load_dotenv
 
 
 start_index = 150000  #if crashed then check what the latest json and write the count
-#df = pd.read_excel('.../All_users_YES_POSTURL_14.6.24_RELEVANT COPY.xlsx')
 #df = pd.read_json(f"OutPutUntil{start_index}.json")
 df = pd.read_json(f"output_Final.json")
 
@@ -33,7 +31,7 @@ def get_embedding(text):
     text = json.dumps(text)
 
     response = openai.Embedding.create(
-        model="text-embedding-3-large",
+        model="text-embedding-3-small",
         input=text
     )
     embedding = response['data'][0]['embedding']
@@ -80,7 +78,6 @@ except Exception as ex:
 
 #export file
 df.to_json('output_Final.json', index=False)
-#Export files to C:\your_dir...
 
 
 
