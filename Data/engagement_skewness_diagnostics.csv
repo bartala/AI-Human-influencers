@@ -1,0 +1,17 @@
+outcome,group,per_influencer_stat,n,skewness,IQR,median_of_values,IQR_over_median
+likes_per_comment,AIVI,median,23,2.9542,1.0,1.0,1.0
+likes_per_comment,AIVI,mean,23,2.5601,1.1751,1.3603,0.8639
+likes_per_comment,HI,median,12,0.6261,1.0,0.5,2.0
+likes_per_comment,HI,mean,12,1.8856,110.115,5.682,19.3795
+likes_per_post,AIVI,median,23,3.7339,8742.4495,1603.0,5.4538
+likes_per_post,AIVI,mean,23,3.5549,8894.6035,2112.81,4.2098
+likes_per_post,HI,median,12,0.8467,91994.4887,33528.5,2.7438
+likes_per_post,HI,mean,12,0.9003,164334.9155,66551.42,2.4693
+comment_length,AIVI,median,23,1.0961,6.5,12.0,0.5417
+comment_length,AIVI,mean,23,1.3456,7.379,21.8659,0.3375
+comment_length,HI,median,12,-0.0763,11.5,19.5,0.5897
+comment_length,HI,mean,12,-0.368,11.6367,33.6262,0.3461
+sentiment_polarity,AIVI,median,23,,0.0,0.0,
+sentiment_polarity,AIVI,mean,23,0.271,0.1157,0.1026,1.1273
+sentiment_polarity,HI,median,12,1.7118,0.0098,0.0,
+sentiment_polarity,HI,mean,12,-0.7239,0.054,0.1681,0.3215
