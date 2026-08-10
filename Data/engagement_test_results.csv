@@ -5,5 +5,5 @@ likes_per_post_median,primary,65.0,0.011751,-0.528986,-0.862319,-0.130435,23,12,
 likes_per_post_mean,secondary,58.0,0.005731,-0.57971,-0.898551,-0.195471,23,12,2112.81,66551.42,12271.282616,105187.873364
 comment_length_median,primary,89.0,0.090551,-0.355072,-0.73913,0.068931,23,12,12.0,19.5,14.173913,18.25
 comment_length_mean,secondary,57.0,0.005149,-0.586957,-0.898551,-0.224638,23,12,21.865919,33.626244,23.74781,32.521057
-sentiment_polarity_median,primary,103.5,0.014974,-0.25,-0.5,0.0,23,12,0.0,0.0,0.0,0.015594
-sentiment_polarity_mean,secondary,71.0,0.020831,-0.485507,-0.804348,-0.108696,23,12,0.102595,0.168107,0.095102,0.151038
+sentiment_polarity_median,secondary (median degenerate within AIVI -- reported for completeness),103.5,0.014974,-0.25,-0.5,0.0,23,12,0.0,0.0,0.0,0.015594
+sentiment_polarity_mean,primary (median degenerate within AIVI),71.0,0.020831,-0.485507,-0.804348,-0.108696,23,12,0.102595,0.168107,0.095102,0.151038
