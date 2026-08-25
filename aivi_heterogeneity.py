@@ -14,10 +14,11 @@ Analyses:
       rates as a distribution-free check.
   (2) Is the dispersion of influencer-level rates across AIVIs different from
       the dispersion across human influencers (HIs)?
-  (3) Which observable characteristics, derivable from the same posts, covary
-      with affective engagement? Includes the salience of artificiality in an
-      influencer's comment stream, measured with the term list of
-      artificiality_keywords.py.
+  (3) Which observable characteristics covary with affective engagement? Eight
+      are derived from the same posts, including the salience of artificiality
+      in an influencer's comment stream (term list of artificiality_keywords.py);
+      the ninth is Instagram account age, taken from the platform's "Date joined"
+      field and expressed in whole months to November 2025.
 
 Usage:  python aivi_heterogeneity.py --data <sentiment_analysis_results1.csv>
 """
@@ -36,6 +37,30 @@ SEED = 42
 N_BOOT = 10000
 MIN_ENGLISH = 100          # minimum English comments for a stable influencer rate
 MIN_TOKENS = 5             # minimum tokens for reliable language detection
+REF_DATE = (2025, 11)      # reference point for account age (year, month)
+
+# Instagram "Date joined", month and year, as displayed on each profile.
+JOINED = {
+    "fit_aitana": (2023, 6), "alizarexx": (2019, 3), "amara_gram": (2017, 4),
+    "bermudaisbae": (2016, 8), "dagny.gram": (2019, 2), "itsellastoller": (2019, 10),
+    "ezmusgita": (2015, 11), "imma.gram": (2018, 7), "ivaany.h": (2013, 3),
+    "opalslutuniverse": (2018, 4), "kda_music": (2020, 7), "lilaziyagil": (2015, 11),
+    "magazineluiza": (2014, 4), "millasofiafin": (2022, 11), "lilmiquela": (2016, 4),
+    "naina_avtr": (2022, 9), "ria_ria_tokyo": (2019, 2), "sasha_____she": (2020, 1),
+    "iamsatiko_": (2021, 8), "shudu.gram": (2016, 11), "sofielund98": (2023, 12),
+    "thalasya_": (2018, 11), "zoedvir": (2018, 10),
+    "growingannanas": (2012, 8), "darcymcqueeny": (2012, 8), "haleyybaylee": (2012, 7),
+    "jessvalortiz": (2012, 5), "minnahigh": (2013, 10), "madeleinecwhite": (2011, 5),
+    "meicrosoft": (2015, 6), "mia_irl": (2018, 11), "iamnatalie": (2012, 12),
+    "nikkiglamour": (2013, 1), "shalicenoel": (2012, 1), "veronikarajek": (2014, 4),
+}
+
+
+def account_age_months(handle):
+    y, m = JOINED[handle]
+    return (REF_DATE[0] - y) * 12 + (REF_DATE[1] - m)
+
+
 MENTION_RE = re.compile(r"(?<![A-Za-z0-9_])@[A-Za-z0-9._]{1,30}")
 
 ARTIFICIALITY = (
@@ -161,8 +186,44 @@ def spread_comparison(desc, n=N_BOOT, seed=SEED):
     }
 
 
+def boot_spearman_ci(x, y, n=N_BOOT, seed=SEED):
+    """Percentile interval for Spearman's rho, resampling influencers."""
+    rng = np.random.default_rng(seed)
+    x, y, k, v = np.asarray(x, float), np.asarray(y, float), len(x), []
+    for _ in range(n):
+        i = rng.choice(k, k, True)
+        if len(set(x[i])) < 3 or len(set(y[i])) < 3:
+            continue
+        v.append(stats.spearmanr(x[i], y[i]).statistic)
+    return float(np.nanpercentile(v, 2.5)), float(np.nanpercentile(v, 97.5))
+
+
+def leave_one_out_spearman(x, y):
+    """Spearman's rho recomputed with each influencer removed in turn."""
+    x, y = np.asarray(x, float), np.asarray(y, float)
+    return [stats.spearmanr(np.delete(x, i), np.delete(y, i)).statistic
+            for i in range(len(x))]
+
+
+def age_correlations(m):
+    """Account age against positive and overall affective expression."""
+    rows = []
+    for g in ["AIVI", "HI"]:
+        s = m[m.group == g]
+        for outcome in ["positive_rate", "affective_rate"]:
+            x, y = s.account_age_months.values, s[outcome].values
+            r = stats.spearmanr(x, y)
+            lo, hi = boot_spearman_ci(x, y)
+            l = leave_one_out_spearman(x, y)
+            rows.append({"group": g, "outcome": outcome, "n": len(s),
+                         "spearman_rho": r.statistic, "p": r.pvalue,
+                         "CI_low": lo, "CI_high": hi,
+                         "loo_min": min(l), "loo_max": max(l)})
+    return pd.DataFrame(rows)
+
+
 def characteristics(df, eng):
-    """Observable characteristics derived from the same posts."""
+    """Observable influencer characteristics."""
     rows = []
     for (g, h), sub in eng.groupby(["group", "handle"]):
         posts = sub.drop_duplicates("post")
@@ -182,6 +243,7 @@ def characteristics(df, eng):
             "distinct_commenter_share": sub["posts.comments.user"].nunique() / len(sub),
             "posts_per_month": (30 * t.nunique() / span) if span and span > 0 else np.nan,
             "artificiality_salience": sub.artificiality.mean(),
+            "account_age_months": account_age_months(h),
         })
     return pd.DataFrame(rows)
 
@@ -280,7 +342,8 @@ def main():
     m.to_csv(os.path.join(a.out, "influencer_characteristics.csv"), index=False)
     cols = ["followers", "mean_likes_per_post", "mean_likes_per_comment",
             "comments_per_post", "mean_comment_length",
-            "distinct_commenter_share", "posts_per_month", "artificiality_salience"]
+            "distinct_commenter_share", "posts_per_month", "artificiality_salience",
+            "account_age_months"]
     corr = pd.concat([correlate(m, cols, "AIVI", "AIVI"),
                       correlate(m, cols, "HI", "HI")], ignore_index=True)
     corr.to_csv(os.path.join(a.out, "covariate_correlations.csv"), index=False)
@@ -289,6 +352,35 @@ def main():
         for _, r in corr[corr.subset == lab].iterrows():
             print(f"  {r.characteristic:26s} n={r.n:2.0f}  rho={r.spearman_rho:+.3f}  "
                   f"p={r.p:.4f}  p_bonf={r.p_bonferroni:.4f}")
+
+    # ---- account age, AIVI vs HI -----------------------------------------
+    age_a = m.loc[m.group == "AIVI", "account_age_months"].values.astype(float)
+    age_h = m.loc[m.group == "HI", "account_age_months"].values.astype(float)
+    u, pv = stats.mannwhitneyu(age_a, age_h, alternative="two-sided")
+    delta = np.sign(age_a[:, None] - age_h[None, :]).mean()
+    rng = np.random.default_rng(SEED)
+    bs = [np.sign(rng.choice(age_a, len(age_a), True)[:, None]
+                  - rng.choice(age_h, len(age_h), True)[None, :]).mean()
+          for _ in range(N_BOOT)]
+    lo, hi = float(np.percentile(bs, 2.5)), float(np.percentile(bs, 97.5))
+    print("\n[account age] months since the account was opened")
+    print(f"  AIVI median {np.median(age_a):.0f} (IQR {np.percentile(age_a,25):.0f}"
+          f"-{np.percentile(age_a,75):.0f}); HI median {np.median(age_h):.0f} "
+          f"(IQR {np.percentile(age_h,25):.0f}-{np.percentile(age_h,75):.0f})")
+    print(f"  Mann-Whitney U={u:.1f}, p={pv:.3g}, Cliff's delta={delta:+.3f} "
+          f"95% CI [{lo:+.3f}, {hi:+.3f}]")
+    pd.DataFrame([{"AIVI_median": np.median(age_a), "HI_median": np.median(age_h),
+                   "mannwhitney_U": u, "p": pv, "cliffs_delta": delta,
+                   "CI_low": lo, "CI_high": hi}]).to_csv(
+        os.path.join(a.out, "account_age_comparison.csv"), index=False)
+
+    ac = age_correlations(m)
+    ac.to_csv(os.path.join(a.out, "age_correlations.csv"), index=False)
+    print("\n[account age] Spearman vs expression rates, with bootstrap CI and leave-one-out")
+    for _, r in ac.iterrows():
+        print(f"  {r.group:4s} {r.outcome:15s} n={r.n:2.0f}  rho={r.spearman_rho:+.3f}  "
+              f"95% CI [{r.CI_low:+.3f}, {r.CI_high:+.3f}]  p={r.p:.4f}  "
+              f"LOO [{r.loo_min:+.3f}, {r.loo_max:+.3f}]")
 
     print("\n[artificiality salience] mean % of comments referring to artificiality")
     print(m.groupby("group").artificiality_salience.describe()[
